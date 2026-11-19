@@ -1,0 +1,53 @@
+import { ADD_TO_CART, CLEAR_CART, REMOVE_ALL_FROM_CART, REMOVE_ONE_FROM_CART } from "../Types.index";
+
+
+export const InitialState = {
+    products: [
+        {id:1, name:"Producto 1",price:100},
+        {id:2, name:"Producto 2",price:50},
+        {id:3, name:"Producto 3",price:150},
+    ],
+    cart:[]
+}
+
+export function shoppingReducer(state = InitialState,action){
+    switch(action.type){
+        case ADD_TO_CART:{
+            let newItem = state.products.find(products => products.id === action.payload)
+            
+            let itemInCart = state.cart.find(item => item.id === newItem.id)
+
+            return itemInCart ? {
+                ...state,
+                cart:state.cart.map(item => item.id === newItem.id ? {...item,quantity: item.quantity +1}:item)    
+            }
+            : {...state,
+            cart:[...state.cart,{...newItem,quantity:1}]}
+
+
+            
+        }
+        case REMOVE_ONE_FROM_CART:{
+            let itemToDelete = state.cart.find(item => item.id === action.payload);
+            
+            return itemToDelete.quantity > 1 ? {
+                ...state,
+                cart:state.cart.map(item => item.id === action.payload ? {...item,quantity: item.quantity - 1}: item)
+            }:{
+                ...state,
+                cart:state.cart.filter(item => item.id !== action.payload)
+            };
+
+        }case REMOVE_ALL_FROM_CART:{
+            return {
+                ...state,
+                cart:state.cart.filter(item => item.id !== action.payload)
+            };
+        }
+        case CLEAR_CART:{
+            return InitialState;
+        }
+        default:
+            return state;
+    }
+}
